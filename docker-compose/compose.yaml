@@ -1,0 +1,36 @@
+name: qaq
+
+services:
+  sonic-server-controller:
+    image: "blacklee123/sonic-server-controller"
+    restart: always
+    environment:
+      - MYSQL_HOST
+      - MYSQL_PORT
+      - MYSQL_DATABASE
+      - MYSQL_USERNAME
+      - MYSQL_PASSWORD
+      - SONIC_SERVER_HOST
+      - SONIC_SERVER_PORT
+      - SECRET_KEY
+      - EXPIRE_DAY
+      - REGISTER_ENABLE
+      - NORMAL_USER_ENABLE
+      - LDAP_USER_ENABLE
+      - LDAP_USER_ID
+      - LDAP_BASE_DN
+      - LDAP_BASE
+      - LDAP_USERNAME
+      - LDAP_PASSWORD
+      - LDAP_URL
+      - LDAP_OBJECT_CLASS
+    networks:
+      - qaq-network
+
+  sonic-client-web:
+    image: "blacklee123/sonic-client-web"
+    restart: always
+    networks:
+      - qaq-network
+    volumes:
+      - ./sonic-client-web/default.conf:/etc/nginx/conf.d/default.conf
