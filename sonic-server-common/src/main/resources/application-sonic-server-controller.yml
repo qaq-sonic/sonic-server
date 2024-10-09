@@ -1,5 +1,5 @@
 server:
-  port: 0
+  port: 80
 
 springdoc:
   paths-to-exclude: /exchange/send,/agents/hubControl

@@ -53,7 +53,7 @@ public class JobsServiceImpl extends SonicServiceImpl<JobsMapper, Jobs> implemen
     @Override
     @Transactional(rollbackFor = Exception.class)
     public RespModel<String> saveJobs(Jobs jobs) throws SonicException {
-        jobs.setStatus(JobStatus.ENABLE);
+        jobs.setStatus(Integer.valueOf(JobStatus.ENABLE));
         jobs.setType(TEST_JOB);
         save(jobs);
         CronTrigger trigger = quartzHandler.getTrigger(jobs);
@@ -78,12 +78,12 @@ public class JobsServiceImpl extends SonicServiceImpl<JobsMapper, Jobs> implemen
                 switch (type) {
                     case JobStatus.DISABLE:
                         quartzHandler.pauseScheduleJob(jobs);
-                        jobs.setStatus(JobStatus.DISABLE);
+                        jobs.setStatus(Integer.valueOf(JobStatus.DISABLE));
                         save(jobs);
                         return new RespModel<>(2000, "job.disable");
                     case JobStatus.ENABLE:
                         quartzHandler.resumeScheduleJob(jobs);
-                        jobs.setStatus(JobStatus.ENABLE);
+                        jobs.setStatus(Integer.valueOf(JobStatus.ENABLE));
                         save(jobs);
                         return new RespModel<>(2000, "job.enable");
                     case JobStatus.ONCE:

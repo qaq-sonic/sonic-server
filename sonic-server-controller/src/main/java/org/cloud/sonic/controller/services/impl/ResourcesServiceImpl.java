@@ -1,7 +1,7 @@
 package org.cloud.sonic.controller.services.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.toolkit.AopUtils;
+//import com.baomidou.mybatisplus.extension.toolkit.AopUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.annotation.Resource;
@@ -81,7 +81,8 @@ public class ResourcesServiceImpl extends SonicServiceImpl<ResourcesMapper, Reso
         if (api == null) {
             return null;
         }
-        RequestMapping requestMapping = AopUtils.getTargetObject(SpringTool.getBean(beanName)).getClass().getAnnotation(RequestMapping.class);
+//        RequestMapping requestMapping = AopUtils.getTargetObject(SpringTool.getBean(beanName)).getClass().getAnnotation(RequestMapping.class);
+        RequestMapping requestMapping = null;
         if (requestMapping == null) {
             return null;
         }
