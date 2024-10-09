@@ -1,4 +1,8 @@
-name: qaq
+name: qaq-sonic
+
+networks:
+  qaq-network:
+    external: true
 
 services:
   sonic-server-controller:
