@@ -13,3 +13,4 @@
 /recordFiles/
 /packageFiles/
 /sonic-server-controller/logs/
+docker-compose/.env
