@@ -22,7 +22,6 @@ import org.cloud.sonic.controller.mapper.VersionsMapper;
 import org.cloud.sonic.controller.models.domain.Versions;
 import org.cloud.sonic.controller.services.VersionsService;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,9 +33,6 @@ import java.util.List;
  */
 @Service
 public class VersionsServiceImpl extends SonicServiceImpl<VersionsMapper, Versions> implements VersionsService {
-
-    @Autowired
-    private VersionsMapper versionsMapper;
 
     @Override
     public boolean delete(int id) {

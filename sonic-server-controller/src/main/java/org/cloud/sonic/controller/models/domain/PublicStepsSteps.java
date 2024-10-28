@@ -23,7 +23,7 @@ import java.io.Serializable;
  * @author JayWenStar
  * @since 2021-12-17
  */
-@Schema(name ="PublicStepsSteps对象", description = "")
+@Schema(name = "PublicStepsSteps对象", description = "")
 @Data
 @Accessors(chain = true)
 @Builder

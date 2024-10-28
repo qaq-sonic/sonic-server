@@ -45,6 +45,7 @@ import java.util.Objects;
 @Slf4j
 public class PermissionFilter extends OncePerRequestFilter {
 
+    public static final String TOKEN = "SonicToken";
     /**
      * 是否开启权限管理
      */
@@ -55,18 +56,12 @@ public class PermissionFilter extends OncePerRequestFilter {
      */
     @Value("${sonic.permission.superAdmin}")
     private String superAdmin;
-
     @Autowired
     private JWTTokenTool jwtTokenTool;
-
     @Autowired
     private RolesServices rolesServices;
-
     @Autowired
     private ResourcesService resourcesService;
-
-    public static final String TOKEN = "SonicToken";
-
     @Resource
     private MessageSource messageSource;
 

@@ -25,6 +25,7 @@ import org.cloud.sonic.controller.models.domain.Devices;
 import org.cloud.sonic.controller.models.http.DeviceDetailChange;
 import org.cloud.sonic.controller.models.http.OccupyParams;
 import org.cloud.sonic.controller.models.http.UpdateDeviceImg;
+import org.cloud.sonic.controller.transport.TransportServer;
 
 import java.io.IOException;
 import java.util.List;
@@ -36,9 +37,9 @@ import java.util.List;
  */
 public interface DevicesService extends IService<Devices> {
 
-    RespModel occupy(OccupyParams occupyParams, String token);
+    RespModel occupy(TransportServer transportServer, OccupyParams occupyParams, String token, AgentsService agentsService);
 
-    RespModel release(String udId, String token);
+    RespModel release(TransportServer transportServer, String udId, String token);
 
     boolean saveDetail(DeviceDetailChange deviceDetailChange);
 

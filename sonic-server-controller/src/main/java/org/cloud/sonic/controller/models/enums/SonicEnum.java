@@ -13,13 +13,6 @@ import java.util.stream.Stream;
 public interface SonicEnum<T> {
 
     /**
-     * 获取枚举值<T>
-     *
-     * @return enum value
-     */
-    T getValue();
-
-    /**
      * 将value转成枚举
      */
     static <T, E extends Enum<E> & SonicEnum<T>> E valueToEnum(Class<E> enumType, T value) {
@@ -32,5 +25,12 @@ public interface SonicEnum<T> {
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("unknown database value: " + value));
     }
+
+    /**
+     * 获取枚举值<T>
+     *
+     * @return enum value
+     */
+    T getValue();
 
 }

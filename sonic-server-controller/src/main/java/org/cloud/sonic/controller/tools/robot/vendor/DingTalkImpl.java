@@ -46,20 +46,6 @@ import java.util.Map;
 @Service("DingTalkImpl")
 public class DingTalkImpl implements RobotMessenger {
 
-    @Configuration
-    static class DingTalkMsgExt {
-        @Value("${robot.img.success}")
-        public String successUrl;
-        //警告时的图片url
-        @Value("${robot.img.warning}")
-        public String warningUrl;
-        //失败时的图片url
-        @Value("${robot.img.error}")
-        public String errorUrl;
-    }
-    @Autowired
-    private DingTalkMsgExt ext;
-
     Expression templateTestSuiteMessage = RobotMessenger.parseTemplate("""
             #{
             {
@@ -103,6 +89,8 @@ public class DingTalkImpl implements RobotMessenger {
               }
             }
             }""");
+    @Autowired
+    private DingTalkMsgExt ext;
 
     /**
      * @param restTemplate RestTemplate
@@ -153,6 +141,18 @@ public class DingTalkImpl implements RobotMessenger {
     @Override
     public Expression getDefaultDeviceMessageTemplate() {
         return templateDeviceMessage;
+    }
+
+    @Configuration
+    static class DingTalkMsgExt {
+        @Value("${robot.img.success}")
+        public String successUrl;
+        //警告时的图片url
+        @Value("${robot.img.warning}")
+        public String warningUrl;
+        //失败时的图片url
+        @Value("${robot.img.error}")
+        public String errorUrl;
     }
 
 }

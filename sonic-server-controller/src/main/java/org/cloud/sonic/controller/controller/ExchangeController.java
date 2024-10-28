@@ -21,6 +21,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.websocket.Session;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.config.WhiteUrl;
@@ -32,21 +33,20 @@ import org.cloud.sonic.controller.models.interfaces.AgentStatus;
 import org.cloud.sonic.controller.services.AgentsService;
 import org.cloud.sonic.controller.services.DevicesService;
 import org.cloud.sonic.controller.tools.BytesTool;
-import org.cloud.sonic.controller.transport.TransportWorker;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cloud.sonic.controller.transport.TransportServer;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "调度相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/exchange")
 @Slf4j
 public class ExchangeController {
 
-    @Autowired
-    private AgentsService agentsService;
-    @Autowired
-    private DevicesService devicesService;
+    private final AgentsService agentsService;
+    private final DevicesService devicesService;
+    private final TransportServer transportServer;
 
     @WebAspect
     @Operation(summary = "重启设备", description = "根据 id 重启特定设备")
@@ -65,7 +65,7 @@ public class ExchangeController {
         jsonObject.put("msg", "reboot");
         jsonObject.put("udId", devices.getUdId());
         jsonObject.put("platform", devices.getPlatform());
-        TransportWorker.send(agents.getId(), jsonObject);
+        transportServer.send(agents.getId(), jsonObject);
         return new RespModel<>(RespEnum.HANDLE_OK);
     }
 
@@ -79,7 +79,7 @@ public class ExchangeController {
         }
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("msg", "shutdown");
-        TransportWorker.send(agents.getId(), jsonObject);
+        transportServer.send(agents.getId(), jsonObject);
         return new RespModel<>(RespEnum.HANDLE_OK);
     }
 

@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
@@ -15,7 +16,6 @@ import org.cloud.sonic.controller.models.domain.Resources;
 import org.cloud.sonic.controller.models.dto.ResourcesDTO;
 import org.cloud.sonic.controller.models.params.ResourceParam;
 import org.cloud.sonic.controller.services.ResourcesService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -23,12 +23,12 @@ import java.util.List;
 
 @Slf4j
 @Tag(name = "请求路径资源")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/resources")
 public class ResourcesController {
 
-    @Autowired
-    private ResourcesService resourcesService;
+    private final ResourcesService resourcesService;
 
     @WebAspect
     @Operation(summary = "查询所有资源连接", description = "查询所有资源连接")

@@ -22,7 +22,7 @@ import java.util.Date;
  * @author JayWenStar
  * @since 2021-12-17
  */
-@Schema(name ="TestCases对象", description = "")
+@Schema(name = "TestCases对象", description = "")
 @Data
 @Accessors(chain = true)
 @Builder

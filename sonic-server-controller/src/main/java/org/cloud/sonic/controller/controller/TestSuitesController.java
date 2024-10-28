@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -30,20 +31,20 @@ import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.domain.TestSuites;
 import org.cloud.sonic.controller.models.dto.TestSuitesDTO;
 import org.cloud.sonic.controller.services.TestSuitesService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cloud.sonic.controller.transport.TransportServer;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Tag(name = "测试套件相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/testSuites")
 public class TestSuitesController {
-    @Autowired
-    private TestSuitesService testSuitesService;
-    @Autowired
-    private JWTTokenTool jwtTokenTool;
+    private final TestSuitesService testSuitesService;
+    private final JWTTokenTool jwtTokenTool;
+    private final TransportServer transportServer;
 
     @WebAspect
     @Operation(summary = "运行测试套件", description = "运行指定项目的指定测试套件")
@@ -59,7 +60,7 @@ public class TestSuitesController {
                 strike = userName;
             }
         }
-        return testSuitesService.runSuite(id, strike);
+        return testSuitesService.runSuite(transportServer, id, strike);
     }
 
     @WebAspect
@@ -76,7 +77,7 @@ public class TestSuitesController {
                 strike = userName;
             }
         }
-        return testSuitesService.forceStopSuite(resultId, strike);
+        return testSuitesService.forceStopSuite(transportServer, resultId, strike);
     }
 
 

@@ -19,6 +19,8 @@ package org.cloud.sonic.controller.services.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.common.exception.SonicException;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -34,8 +36,6 @@ import org.cloud.sonic.controller.models.interfaces.UserLoginType;
 import org.cloud.sonic.controller.services.RolesServices;
 import org.cloud.sonic.controller.services.UsersService;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -57,18 +57,13 @@ import java.util.stream.Collectors;
  * @des
  * @date 2021/10/13 11:26
  */
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class UsersServiceImpl extends SonicServiceImpl<UsersMapper, Users> implements UsersService {
-    private final Logger logger = LoggerFactory.getLogger(UsersServiceImpl.class);
 
-    @Autowired
-    private JWTTokenTool jwtTokenTool;
-
-    @Autowired
-    private UsersMapper usersMapper;
-
-    @Autowired
-    private RolesServices rolesServices;
+    private final JWTTokenTool jwtTokenTool;
+    private final RolesServices rolesServices;
 
     @Value("${sonic.user.ldap.enable}")
     private boolean ldapEnable;
@@ -128,11 +123,11 @@ public class UsersServiceImpl extends SonicServiceImpl<UsersMapper, Users> imple
         } else if (normalEnable && UserLoginType.LOCAL.equals(users.getSource()) && DigestUtils.md5DigestAsHex(userInfo.getPassword().getBytes()).equals(users.getPassword())) {
             token = jwtTokenTool.getToken(users.getUserName());
             users.setPassword("");
-            logger.info("user: " + userInfo.getUserName() + " login! token:" + token);
+            log.info("user: " + userInfo.getUserName() + " login! token:" + token);
         } else {
             if (checkLdapAuthenticate(userInfo, false)) {
                 token = jwtTokenTool.getToken(users.getUserName());
-                logger.info("ldap user: " + userInfo.getUserName() + "login! token:" + token);
+                log.info("ldap user: " + userInfo.getUserName() + "login! token:" + token);
             }
         }
         return token;
@@ -143,7 +138,7 @@ public class UsersServiceImpl extends SonicServiceImpl<UsersMapper, Users> imple
         String username = userInfo.getUserName();
         String password = userInfo.getPassword();
         if (password.isEmpty()) return false;
-        logger.info("login check content username {}", username);
+        log.info("login check content username {}", username);
         AndFilter filter = new AndFilter();
         filter.and(new EqualsFilter("objectclass", objectClass)).and(new EqualsFilter(userId, username));
         try {
@@ -153,7 +148,7 @@ public class UsersServiceImpl extends SonicServiceImpl<UsersMapper, Users> imple
             }
             return authResult;
         } catch (Exception e) {
-            logger.info("ldap login failed, cause: {}", e.getMessage());
+            log.info("ldap login failed, cause: {}", e.getMessage());
             return false;
         }
     }

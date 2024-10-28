@@ -19,18 +19,18 @@ package org.cloud.sonic.controller.services.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.controller.mapper.ScriptsMapper;
 import org.cloud.sonic.controller.models.domain.Scripts;
 import org.cloud.sonic.controller.services.ScriptsService;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@RequiredArgsConstructor
 @Service
 public class ScriptsServiceImpl extends SonicServiceImpl<ScriptsMapper, Scripts> implements ScriptsService {
-    @Autowired
-    private ScriptsMapper scriptsMapper;
+    private final ScriptsMapper scriptsMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)

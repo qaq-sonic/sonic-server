@@ -19,6 +19,7 @@ package org.cloud.sonic.controller.services.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.ObjectUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.controller.mapper.AgentsMapper;
 import org.cloud.sonic.controller.models.domain.Agents;
@@ -28,24 +29,19 @@ import org.cloud.sonic.controller.models.interfaces.DeviceStatus;
 import org.cloud.sonic.controller.services.AgentsService;
 import org.cloud.sonic.controller.services.DevicesService;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.cloud.sonic.controller.transport.TransportWorker;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cloud.sonic.controller.transport.TransportServer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class AgentsServiceImpl extends SonicServiceImpl<AgentsMapper, Agents> implements AgentsService {
 
-    @Autowired
-    private DevicesService devicesService;
-    @Autowired
-    private AlertRobotsServiceImpl alertRobotsService;
-    @Autowired
-    private AgentsMapper agentsMapper;
+    private final AlertRobotsServiceImpl alertRobotsService;
 
     @Override
     public List<Agents> findAgents() {
@@ -53,7 +49,7 @@ public class AgentsServiceImpl extends SonicServiceImpl<AgentsMapper, Agents> im
     }
 
     @Override
-    public void update(int id, String name, int highTemp, int highTempTime, int robotType, String robotToken, String robotSecret, int[] alertRobotIds) {
+    public void update(TransportServer transportServer, int id, String name, int highTemp, int highTempTime, int robotType, String robotToken, String robotSecret, int[] alertRobotIds) {
         if (id == 0) {
             Agents agents = new Agents();
             agents.setName(name);
@@ -86,12 +82,12 @@ public class AgentsServiceImpl extends SonicServiceImpl<AgentsMapper, Agents> im
                 result.put("msg", "settings");
                 result.put("highTemp", highTemp);
                 result.put("highTempTime", highTempTime);
-                TransportWorker.send(id, result);
+                transportServer.send(id, result);
             }
         }
     }
 
-    public void resetDevice(int id) {
+    public void resetDevice(int id, DevicesService devicesService) {
         List<Devices> devicesList = devicesService.listByAgentId(id);
         for (Devices devices : devicesList) {
             if ((!devices.getStatus().equals(DeviceStatus.OFFLINE))
@@ -136,13 +132,13 @@ public class AgentsServiceImpl extends SonicServiceImpl<AgentsMapper, Agents> im
 
     @Deprecated
     @Override
-    public boolean offLine(int id) {
+    public boolean offLine(int id, DevicesService devicesService) {
         if (existsById(id)) {
             Agents agentOffLine = findById(id);
             agentOffLine
                     .setStatus(AgentStatus.OFFLINE);
             updateAgentsByLockVersion(agentOffLine);
-            resetDevice(agentOffLine.getId());
+            resetDevice(agentOffLine.getId(), devicesService);
             return true;
         } else {
             return false;
@@ -150,10 +146,10 @@ public class AgentsServiceImpl extends SonicServiceImpl<AgentsMapper, Agents> im
     }
 
     @Override
-    public Agents auth(String key) {
+    public Agents auth(String key, DevicesService devicesService) {
         Agents agents = findBySecretKey(key);
         if (agents != null) {
-            resetDevice(agents.getId());
+            resetDevice(agents.getId(), devicesService);
         }
         return agents;
     }

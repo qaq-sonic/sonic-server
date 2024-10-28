@@ -21,6 +21,7 @@ package org.cloud.sonic.controller.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -28,7 +29,6 @@ import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.domain.Packages;
 import org.cloud.sonic.controller.models.dto.PackageDTO;
 import org.cloud.sonic.controller.services.PackagesService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,12 +38,12 @@ import org.springframework.web.bind.annotation.*;
  * @date 2022/5/26 1:22
  */
 @Tag(name = "安装包管理")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/packages")
 public class PackageController {
 
-    @Autowired
-    private PackagesService packagesService;
+    private final PackagesService packagesService;
 
     @WebAspect
     @Operation(summary = "添加安装包信息", description = "添加安装包信息")

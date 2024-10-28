@@ -30,7 +30,8 @@ public interface AlertRobotsMapper extends BaseMapper<AlertRobots> {
             select ifnull(alert_robot_ids,(select testsuite_alert_robot_ids from projects p where p.id = ts.project_id))
             as alert_robot_ids from test_suites ts where id = #{suiteId}
             """)
-    @Nullable String getIdsForTestsuite(@Param("suiteId") int suiteId);
+    @Nullable
+    String getIdsForTestsuite(@Param("suiteId") int suiteId);
 
     @Select("""
             <script>
@@ -53,7 +54,8 @@ public interface AlertRobotsMapper extends BaseMapper<AlertRobots> {
     }
 
     @Select("select alert_robot_ids from agents where id = #{agentId}")
-    @Nullable String getIdsForAgent(@Param("agentId") int agentId);
+    @Nullable
+    String getIdsForAgent(@Param("agentId") int agentId);
 
     @Select("""
             <script>

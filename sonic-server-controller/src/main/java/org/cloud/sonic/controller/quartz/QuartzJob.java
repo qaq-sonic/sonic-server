@@ -17,6 +17,7 @@
  */
 package org.cloud.sonic.controller.quartz;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.common.http.RespModel;
 import org.cloud.sonic.controller.models.domain.Jobs;
@@ -24,10 +25,10 @@ import org.cloud.sonic.controller.models.interfaces.JobType;
 import org.cloud.sonic.controller.services.JobsService;
 import org.cloud.sonic.controller.services.ResultsService;
 import org.cloud.sonic.controller.services.TestSuitesService;
+import org.cloud.sonic.controller.transport.TransportServer;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 import org.springframework.stereotype.Component;
 
@@ -38,15 +39,14 @@ import java.util.Date;
  * @des 任务实现类
  * @date 2021/8/21 17:44
  */
+@RequiredArgsConstructor
 @Component
 @Slf4j
 public class QuartzJob extends QuartzJobBean implements Job {
-    @Autowired
-    private JobsService jobsService;
-    @Autowired
-    private TestSuitesService testSuitesService;
-    @Autowired
-    private ResultsService resultsService;
+    private final JobsService jobsService;
+    private final TestSuitesService testSuitesService;
+    private final ResultsService resultsService;
+    private final TransportServer transportServer;
 
     @Override
     protected void executeInternal(JobExecutionContext jobExecutionContext) {
@@ -58,7 +58,7 @@ public class QuartzJob extends QuartzJobBean implements Job {
                 if (jobs != null) {
                     RespModel<Integer> r;
                     try {
-                        r = testSuitesService.runSuite(jobs.getSuiteId(), "SYSTEM");
+                        r = testSuitesService.runSuite(transportServer, jobs.getSuiteId(), "SYSTEM");
                     } catch (Throwable e) {
                         log.info(e.fillInStackTrace().toString());
                         return;
@@ -86,11 +86,11 @@ public class QuartzJob extends QuartzJobBean implements Job {
                 log.info("Clean result job...");
             }
             case JobType.SEND_DAY_REPORT -> {
-                resultsService.sendDayReport();
+//                resultsService.sendDayReport();
                 log.info("Send day report...");
             }
             case JobType.SEND_WEEK_REPORT -> {
-                resultsService.sendWeekReport();
+//                resultsService.sendWeekReport();
                 log.info("Send week report...");
             }
         }

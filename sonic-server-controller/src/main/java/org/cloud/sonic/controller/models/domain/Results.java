@@ -22,7 +22,7 @@ import java.util.Date;
  * @author JayWenStar
  * @since 2021-12-17
  */
-@Schema(name ="Results对象", description = "")
+@Schema(name = "Results对象", description = "")
 @Data
 @Accessors(chain = true)
 @Builder
@@ -34,22 +34,19 @@ import java.util.Date;
 @TableEngine(MySqlEngineConstant.InnoDB)
 public class Results implements Serializable, TypeConverter<Results, ResultsDTO> {
 
-    @TableId(value = "id", type = IdType.AUTO)
-    @IsAutoIncrement
-    private Integer id;
-
     @Schema(description = "创建时间", example = "2021-08-15 11:36:00")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @TableField(fill = FieldFill.INSERT)
     @Column(value = "create_time", type = MySqlTypeConstant.DATETIME, isNull = false, comment = "任务创建时间")
     Date createTime;
-
     @Schema(description = "结束时间", example = "2021-08-15 11:36:00")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @TableField(fill = FieldFill.INSERT_UPDATE)
     @Column(value = "end_time", type = MySqlTypeConstant.DATETIME, comment = "任务结束时间")
     Date endTime;
-
+    @TableId(value = "id", type = IdType.AUTO)
+    @IsAutoIncrement
+    private Integer id;
     @TableField
     @Column(value = "project_id", isNull = false, comment = "所属项目id")
     @Index(value = "IDX_PROJECT_ID", columns = {"project_id"})

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.cloud.sonic.controller.models.domain.Projects;
 import org.cloud.sonic.controller.models.domain.Results;
 
 import java.util.List;
@@ -26,15 +27,15 @@ public interface ResultsService extends IService<Results> {
 
     void suiteResult(int id);
 
-    JSONArray findCaseStatus(int id);
+    JSONArray findCaseStatus(int id, TestSuitesService testSuitesService, TestCasesService testCasesService);
 
     void subResultCount(int id);
 
     JSONObject chart(String startTime, String endTime, int projectId);
 
-    void sendDayReport();
+    void sendDayReport(List<Projects> projectsList);
 
-    void sendWeekReport();
+    void sendWeekReport(List<Projects> projectsList);
 
     void deleteByProjectId(int projectId);
 }

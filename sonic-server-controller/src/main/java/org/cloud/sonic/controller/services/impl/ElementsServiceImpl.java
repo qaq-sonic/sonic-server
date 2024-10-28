@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
 import org.cloud.sonic.controller.mapper.ElementsMapper;
@@ -38,7 +39,6 @@ import org.cloud.sonic.controller.services.ElementsService;
 import org.cloud.sonic.controller.services.StepsService;
 import org.cloud.sonic.controller.services.TestCasesService;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -46,19 +46,13 @@ import org.springframework.util.StringUtils;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class ElementsServiceImpl extends SonicServiceImpl<ElementsMapper, Elements> implements ElementsService {
 
-    @Autowired
-    private ElementsMapper elementsMapper;
-    @Autowired
-    private StepsService stepsService;
-    @Autowired
-    private TestCasesService testCasesService;
-    @Autowired
-    private StepsElementsMapper stepsElementsMapper;
-    @Autowired
-    private ModulesMapper modulesMapper;
+    private final ElementsMapper elementsMapper;
+    private final StepsElementsMapper stepsElementsMapper;
+    private final ModulesMapper modulesMapper;
 
     @Override
     public CommentPage<ElementsDTO> findAll(int projectId, String type, List<String> eleTypes, String name, String value, List<Integer> moduleIds, Page<Elements> pageable) {
@@ -103,7 +97,7 @@ public class ElementsServiceImpl extends SonicServiceImpl<ElementsMapper, Elemen
     }
 
     @Override
-    public List<StepsDTO> findAllStepsByElementsId(int elementsId) {
+    public List<StepsDTO> findAllStepsByElementsId(int elementsId, StepsService stepsService, TestCasesService testCasesService) {
         return stepsService.listStepsByElementsId(elementsId).stream().map(e -> {
             StepsDTO stepsDTO = e.convertTo();
             if (0 == stepsDTO.getCaseId()) {

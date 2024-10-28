@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.exception.SonicException;
 import org.cloud.sonic.common.http.RespEnum;
@@ -33,7 +34,6 @@ import org.cloud.sonic.controller.models.dto.JobsDTO;
 import org.cloud.sonic.controller.services.JobsService;
 import org.cloud.sonic.controller.tools.QuartzJobTools;
 import org.quartz.CronExpression;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,12 +45,12 @@ import java.util.List;
  * @date 2021/8/22 17:58
  */
 @Tag(name = "定时任务相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/jobs")
 public class JobsController {
 
-    @Autowired
-    private JobsService jobsService;
+    private final JobsService jobsService;
 
     @WebAspect
     @Operation(summary = "更新定时任务信息", description = "新增或更新定时任务的信息")
@@ -122,13 +122,13 @@ public class JobsController {
             @Parameter(name = "type", description = "类型"),
             @Parameter(name = "cron", description = "cron表达式")
     })
-    
+
     @PutMapping("/updateSysJob")
     public RespModel updateSysJob(@RequestBody JSONObject jsonObject) {
-    	final String cron = QuartzJobTools.validateOrDisableCronExpression(jsonObject.getString("cron"));
-    	if (!CronExpression.isValidExpression(cron)) { // https://stackoverflow.com/a/2363119/12857692
-    		return new RespModel<>(RespEnum.PARAMS_NOT_VALID);
-    	}
+        final String cron = QuartzJobTools.validateOrDisableCronExpression(jsonObject.getString("cron"));
+        if (!CronExpression.isValidExpression(cron)) { // https://stackoverflow.com/a/2363119/12857692
+            return new RespModel<>(RespEnum.PARAMS_NOT_VALID);
+        }
         jobsService.updateSysJob(jsonObject.getString("type"), cron);
         return new RespModel<>(RespEnum.HANDLE_OK);
     }

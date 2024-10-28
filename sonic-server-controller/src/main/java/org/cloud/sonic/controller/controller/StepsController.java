@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -32,7 +33,6 @@ import org.cloud.sonic.controller.models.domain.Steps;
 import org.cloud.sonic.controller.models.dto.StepsDTO;
 import org.cloud.sonic.controller.models.http.StepSort;
 import org.cloud.sonic.controller.services.StepsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,13 +44,12 @@ import java.util.List;
  * @date 2021/9/19 11:45
  */
 @Tag(name = "操作步骤相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/steps")
 public class StepsController {
-    @Autowired
-    private StepsService stepsService;
-    @Autowired
-    private PublicStepsMapper publicStepsMapper;
+    private final StepsService stepsService;
+    private final PublicStepsMapper publicStepsMapper;
 
     @WebAspect
     @Operation(summary = "查找步骤列表", description = "查找对应用例id下的步骤列表（分页）")
@@ -166,7 +165,7 @@ public class StepsController {
     @GetMapping("/copy/steps")
     public RespModel<String> copyStepsIdByCase(@RequestParam(name = "id") int stepId,
                                                @RequestParam(name = "toLast", defaultValue = "true", required = false)
-                                                       boolean toLast) {
+                                               boolean toLast) {
         stepsService.copyStepsIdByCase(stepId, toLast);
         return new RespModel<>(RespEnum.COPY_OK);
     }
@@ -191,7 +190,7 @@ public class StepsController {
     @GetMapping("/stepSortTarget")
     public RespModel<String> stepSortTarget(@RequestParam(name = "targetStepId") int targetStepId,
                                             @RequestParam(name = "addToTargetNext", defaultValue = "false")
-                                                    boolean addToTargetNext) {
+                                            boolean addToTargetNext) {
         StepsDTO stepsDTO = stepsService.findById(targetStepId);
         StepSort stepSort = new StepSort();
         stepSort.setDirection("up");

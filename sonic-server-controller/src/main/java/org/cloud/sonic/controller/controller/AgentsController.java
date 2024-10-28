@@ -20,6 +20,7 @@ package org.cloud.sonic.controller.controller;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -27,12 +28,10 @@ import org.cloud.sonic.controller.models.base.TypeConverter;
 import org.cloud.sonic.controller.models.domain.Agents;
 import org.cloud.sonic.controller.models.dto.AgentsDTO;
 import org.cloud.sonic.controller.services.AgentsService;
-import org.cloud.sonic.controller.transport.TransportWorker;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cloud.sonic.controller.transport.TransportServer;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * @author ZhouYiXun
@@ -40,12 +39,13 @@ import java.util.stream.Collectors;
  * @date 2021/8/28 21:49
  */
 @Tag(name = "Agent端相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/agents")
 public class AgentsController {
 
-    @Autowired
-    private AgentsService agentsService;
+    private final AgentsService agentsService;
+    private final TransportServer transportServer;
 
     @WebAspect
     @GetMapping("/hubControl")
@@ -55,7 +55,7 @@ public class AgentsController {
         result.put("msg", "hub");
         result.put("position", position);
         result.put("type", type);
-        TransportWorker.send(id, result);
+        transportServer.send(id, result);
         return new RespModel<>(RespEnum.HANDLE_OK);
     }
 
@@ -65,7 +65,7 @@ public class AgentsController {
     public RespModel<List<AgentsDTO>> findAgents() {
         return new RespModel<>(
                 RespEnum.SEARCH_OK,
-                agentsService.findAgents().stream().map(TypeConverter::convertTo).collect(Collectors.toList())
+                agentsService.findAgents().stream().map(TypeConverter::convertTo).toList()
         );
     }
 
@@ -73,7 +73,7 @@ public class AgentsController {
     @Operation(summary = "修改agent信息", description = "修改agent信息")
     @PutMapping("/update")
     public RespModel<String> update(@RequestBody AgentsDTO jsonObject) {
-        agentsService.update(jsonObject.getId(),
+        agentsService.update(transportServer, jsonObject.getId(),
                 jsonObject.getName(), jsonObject.getHighTemp(),
                 jsonObject.getHighTempTime(), jsonObject.getRobotType(),
                 jsonObject.getRobotToken(), jsonObject.getRobotToken(),

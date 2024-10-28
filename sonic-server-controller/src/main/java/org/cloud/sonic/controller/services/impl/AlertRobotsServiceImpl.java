@@ -19,6 +19,7 @@ package org.cloud.sonic.controller.services.impl;
 
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.controller.mapper.AlertRobotsMapper;
 import org.cloud.sonic.controller.models.base.CommentPage;
@@ -31,9 +32,7 @@ import org.cloud.sonic.controller.tools.robot.RobotMessenger;
 import org.cloud.sonic.controller.tools.robot.message.DeviceMessage;
 import org.cloud.sonic.controller.tools.robot.message.ProjectSummaryMessage;
 import org.cloud.sonic.controller.tools.robot.message.TestSuiteMessage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.expression.Expression;
 import org.springframework.expression.spel.standard.SpelExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -44,18 +43,15 @@ import java.math.RoundingMode;
 import java.util.Date;
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class AlertRobotsServiceImpl extends SonicServiceImpl<AlertRobotsMapper, AlertRobots> implements AlertRobotsService {
 
+    private final RobotFactory robotFactory;
+    private final RestTemplate restTemplate;
     @Value("${robot.client.host}")
     private String clientHost;
-
-    @Autowired
-    private RobotFactory robotFactory;
-
-    @Autowired
-    private RestTemplate restTemplate;
 
     @Override
     public CommentPage<AlertRobots> findRobots(Page<AlertRobots> page, Integer projectId, String scene) {

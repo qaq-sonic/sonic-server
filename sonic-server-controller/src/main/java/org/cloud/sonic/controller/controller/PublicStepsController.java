@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -31,7 +32,6 @@ import org.cloud.sonic.controller.models.domain.TestCases;
 import org.cloud.sonic.controller.models.dto.PublicStepsDTO;
 import org.cloud.sonic.controller.services.PublicStepsService;
 import org.cloud.sonic.controller.services.TestCasesService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,13 +39,12 @@ import java.util.List;
 import java.util.Map;
 
 @Tag(name = "公共步骤相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/publicSteps")
 public class PublicStepsController {
 
-    @Autowired
     private PublicStepsService publicStepsService;
-    @Autowired
     private TestCasesService testCasesService;
 
     @WebAspect

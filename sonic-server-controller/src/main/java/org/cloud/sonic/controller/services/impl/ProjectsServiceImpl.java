@@ -17,13 +17,13 @@
  */
 package org.cloud.sonic.controller.services.impl;
 
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.exception.SonicException;
 import org.cloud.sonic.controller.mapper.ProjectsMapper;
 import org.cloud.sonic.controller.models.domain.Projects;
 import org.cloud.sonic.controller.models.domain.Results;
 import org.cloud.sonic.controller.services.*;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,31 +34,21 @@ import java.util.List;
  * @des 项目逻辑实现
  * @date 2021/8/21 20:57
  */
+@RequiredArgsConstructor
 @Service
 public class ProjectsServiceImpl extends SonicServiceImpl<ProjectsMapper, Projects> implements ProjectsService {
 
-    @Autowired
-    private ElementsService elementsService;
-    @Autowired
-    private GlobalParamsService globalParamsService;
-    @Autowired
-    private ModulesService modulesService;
-    @Autowired
-    private VersionsService versionsService;
-    @Autowired
-    private PublicStepsService publicStepsService;
-    @Autowired
-    private ResultsService resultsService;
-    @Autowired
-    private ResultDetailService resultDetailService;
-    @Autowired
-    private StepsService stepsService;
-    @Autowired
-    private TestSuitesService testSuitesService;
-    @Autowired
-    private TestCasesService testCasesService;
-    @Autowired
-    private ScriptsService scriptsService;
+    private final ElementsService elementsService;
+    private final GlobalParamsService globalParamsService;
+    private final ModulesService modulesService;
+    private final VersionsService versionsService;
+    private final PublicStepsService publicStepsService;
+    private final ResultsService resultsService;
+    private final ResultDetailService resultDetailService;
+    private final StepsService stepsService;
+    private final TestSuitesService testSuitesService;
+    private final TestCasesService testCasesService;
+    private final ScriptsService scriptsService;
 
     @Override
     public Projects findById(int id) {

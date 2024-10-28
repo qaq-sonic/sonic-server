@@ -19,7 +19,7 @@ import org.cloud.sonic.controller.models.dto.ScriptsDTO;
 
 import java.io.Serializable;
 
-@Schema(name ="Scripts对象", description = "")
+@Schema(name = "Scripts对象", description = "")
 @Data
 @Accessors(chain = true)
 @Builder

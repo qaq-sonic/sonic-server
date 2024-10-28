@@ -18,14 +18,13 @@
 package org.cloud.sonic.controller.quartz;
 
 import com.alibaba.fastjson.JSONObject;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.controller.models.domain.Jobs;
 import org.cloud.sonic.controller.models.interfaces.JobType;
 import org.cloud.sonic.controller.services.JobsService;
 import org.cloud.sonic.controller.tools.QuartzJobTools;
 import org.quartz.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -37,14 +36,12 @@ import java.util.List;
  * @des quartz处理类
  * @date 2021/8/21 17:08
  */
+@Slf4j
+@RequiredArgsConstructor
 @Component
 public class QuartzHandler {
-    private final Logger logger = LoggerFactory.getLogger(QuartzHandler.class);
-    @Autowired
-    private Scheduler scheduler;
-    @Autowired
-    private JobsService jobsService;
-    private List<String> typeList = Arrays.asList("cleanFile", "cleanResult", "sendDayReport", "sendWeekReport");
+    private final Scheduler scheduler;
+    private final List<String> typeList = Arrays.asList("cleanFile", "cleanResult", "sendDayReport", "sendWeekReport");
 
     /**
      * @param jobs
@@ -63,9 +60,9 @@ public class QuartzHandler {
                     .withMisfireHandlingInstructionDoNothing();
             CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(jobs.getId() + "").withSchedule(scheduleBuilder).build();
             scheduler.scheduleJob(jobDetail, trigger);
-            logger.info("Create Job Successful!");
+            log.info("Create Job Successful!");
         } catch (SchedulerException e) {
-            logger.error("Create Job failed, cause: " + e.getMessage());
+            log.error("Create Job failed, cause: " + e.getMessage());
             throw e;
         }
     }
@@ -81,9 +78,9 @@ public class QuartzHandler {
         JobKey jobKey = JobKey.jobKey(jobs.getId() + "");
         try {
             scheduler.pauseJob(jobKey);
-            logger.info("Pause Job Successful!");
+            log.info("Pause Job Successful!");
         } catch (SchedulerException e) {
-            logger.error("Pause Job failed, cause: " + e.getMessage());
+            log.error("Pause Job failed, cause: " + e.getMessage());
             throw e;
         }
     }
@@ -99,9 +96,9 @@ public class QuartzHandler {
         JobKey jobKey = JobKey.jobKey(jobs.getId() + "");
         try {
             scheduler.resumeJob(jobKey);
-            logger.info("Resume Job Successful!");
+            log.info("Resume Job Successful!");
         } catch (SchedulerException e) {
-            logger.error("Resume Job failed, cause: " + e.getMessage());
+            log.error("Resume Job failed, cause: " + e.getMessage());
             throw e;
         }
     }
@@ -117,9 +114,9 @@ public class QuartzHandler {
         JobKey jobKey = JobKey.jobKey(jobs.getId() + "");
         try {
             scheduler.triggerJob(jobKey);
-            logger.info("Run Once Job Successful!");
+            log.info("Run Once Job Successful!");
         } catch (SchedulerException e) {
-            logger.error("Run Once Job failed, cause: " + e.getMessage());
+            log.error("Run Once Job failed, cause: " + e.getMessage());
             throw e;
         }
     }
@@ -139,9 +136,9 @@ public class QuartzHandler {
                     .withMisfireHandlingInstructionDoNothing();
             trigger = trigger.getTriggerBuilder().withIdentity(triggerKey).withSchedule(scheduleBuilder).build();
             scheduler.rescheduleJob(triggerKey, trigger);
-            logger.info("Update Job Successful!");
+            log.info("Update Job Successful!");
         } catch (SchedulerException e) {
-            logger.error("Update Job failed, cause: " + e.getMessage());
+            log.error("Update Job failed, cause: " + e.getMessage());
             throw e;
         }
     }
@@ -160,9 +157,9 @@ public class QuartzHandler {
             scheduler.pauseTrigger(triggerKey);
             scheduler.unscheduleJob(triggerKey);
             scheduler.deleteJob(jobKey);
-            logger.info("Delete Job Successful!");
+            log.info("Delete Job Successful!");
         } catch (SchedulerException e) {
-            logger.error("Delete Job failed, cause: " + e.getMessage());
+            log.error("Delete Job failed, cause: " + e.getMessage());
             throw e;
         }
     }
@@ -206,9 +203,9 @@ public class QuartzHandler {
             scheduler.pauseTrigger(triggerKey);
             scheduler.unscheduleJob(triggerKey);
             scheduler.deleteJob(jobKey);
-            logger.info("Delete Job Successful!");
+            log.info("Delete Job Successful!");
         } catch (SchedulerException e) {
-            logger.error("Delete Job failed, cause: " + e.getMessage());
+            log.error("Delete Job failed, cause: " + e.getMessage());
         }
         try {
             Class<? extends Job> jobClass = QuartzJob.class;
@@ -243,17 +240,17 @@ public class QuartzHandler {
                     .withMisfireHandlingInstructionDoNothing();
             CronTrigger trigger = TriggerBuilder.newTrigger().withIdentity(type).withSchedule(scheduleBuilder).build();
             scheduler.scheduleJob(jobDetail, trigger);
-            logger.info("Create " + type + " System Job Successful!");
+            log.info("Create " + type + " System Job Successful!");
         } catch (SchedulerException e) {
-            logger.error("Create Job failed, cause: " + e.getMessage());
+            log.error("Create Job failed, cause: " + e.getMessage());
         }
     }
 
-    public void createSysTrigger() {
+    public void createSysTrigger(JobsService jobsService) {
         for (String type : typeList) {
             Jobs job = jobsService.findByType(type);
             if (job == null) {
-                job = initSysJob(type);
+                job = initSysJob(type, jobsService);
             }
             updateSysScheduleJob(type, job.getCronExpression());
         }
@@ -264,7 +261,7 @@ public class QuartzHandler {
      *
      * @param type 系统定时任务类型
      */
-    private Jobs initSysJob(String type) {
+    private Jobs initSysJob(String type, JobsService jobsService) {
         Jobs job = new Jobs();
         String name = "";
         String cronExpression = "";

@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -33,7 +34,6 @@ import org.cloud.sonic.controller.models.domain.TestSuites;
 import org.cloud.sonic.controller.models.dto.TestCasesDTO;
 import org.cloud.sonic.controller.services.TestCasesService;
 import org.cloud.sonic.controller.services.TestSuitesService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -42,15 +42,13 @@ import java.util.Date;
 import java.util.List;
 
 @Tag(name = "测试用例相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/testCases")
 public class TestCasesController {
-    @Autowired
-    private TestCasesService testCasesService;
-    @Autowired
-    private JWTTokenTool jwtTokenTool;
-    @Autowired
-    private TestSuitesService testSuitesService;
+    private final TestCasesService testCasesService;
+    private final JWTTokenTool jwtTokenTool;
+    private final TestSuitesService testSuitesService;
 
     @WebAspect
     @Operation(summary = "查询测试用例列表", description = "查找对应项目id下的测试用例列表")

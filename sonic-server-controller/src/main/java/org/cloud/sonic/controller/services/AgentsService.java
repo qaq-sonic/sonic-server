@@ -20,6 +20,7 @@ package org.cloud.sonic.controller.services;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.cloud.sonic.controller.models.domain.Agents;
+import org.cloud.sonic.controller.transport.TransportServer;
 
 import java.util.List;
 
@@ -31,11 +32,11 @@ import java.util.List;
 public interface AgentsService extends IService<Agents> {
     List<Agents> findAgents();
 
-    void update(int id, String name, int highTemp, int highTempTime, int robotType, String robotToken, String robotSecret, int[] alertRobotIds);
+    void update(TransportServer transportServer, int id, String name, int highTemp, int highTempTime, int robotType, String robotToken, String robotSecret, int[] alertRobotIds);
 
-    boolean offLine(int id);
+    boolean offLine(int id, DevicesService devicesService);
 
-    Agents auth(String key);
+    Agents auth(String key, DevicesService devicesService);
 
     Agents findById(int id);
 

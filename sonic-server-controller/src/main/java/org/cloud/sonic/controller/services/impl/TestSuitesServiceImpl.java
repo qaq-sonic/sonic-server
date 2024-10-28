@@ -17,12 +17,12 @@
  */
 package org.cloud.sonic.controller.services.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
 import org.cloud.sonic.controller.mapper.*;
@@ -37,7 +37,7 @@ import org.cloud.sonic.controller.models.interfaces.PlatformType;
 import org.cloud.sonic.controller.models.interfaces.ResultStatus;
 import org.cloud.sonic.controller.services.*;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.cloud.sonic.controller.transport.TransportWorker;
+import org.cloud.sonic.controller.transport.TransportServer;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -55,29 +55,18 @@ import java.util.stream.Collectors;
  * @des 测试套件逻辑实现
  * @date 2021/8/20 17:51
  */
+@RequiredArgsConstructor
 @Service
 public class TestSuitesServiceImpl extends SonicServiceImpl<TestSuitesMapper, TestSuites> implements TestSuitesService, ApplicationContextAware {
 
-    @Autowired
-    private TestCasesMapper testCasesMapper;
-    @Autowired
-    private DevicesMapper devicesMapper;
-    @Autowired
-    private ResultsService resultsService;
-    @Autowired
-    private GlobalParamsService globalParamsService;
-    @Autowired
-    private StepsService stepsService;
-    @Autowired
-    private PublicStepsService publicStepsService;
-    @Autowired
-    private TestSuitesTestCasesMapper testSuitesTestCasesMapper;
-    @Autowired
-    private TestSuitesDevicesMapper testSuitesDevicesMapper;
-    @Autowired
-    private AgentsService agentsService;
-    @Autowired
-    private PackagesService packagesService;
+    private final TestCasesMapper testCasesMapper;
+    private final DevicesMapper devicesMapper;
+    private final ResultsService resultsService;
+    private final GlobalParamsService globalParamsService;
+    private final PublicStepsService publicStepsService;
+    private final TestSuitesTestCasesMapper testSuitesTestCasesMapper;
+    private final TestSuitesDevicesMapper testSuitesDevicesMapper;
+    private final PackagesService packagesService;
 
     private Map<Integer, CoverHandler> coverHandlerMap;
 
@@ -85,7 +74,7 @@ public class TestSuitesServiceImpl extends SonicServiceImpl<TestSuitesMapper, Te
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public RespModel<Integer> runSuite(int suiteId, String strike) {
+    public RespModel<Integer> runSuite(TransportServer transportServer, int suiteId, String strike) {
         TestSuitesDTO testSuitesDTO = findById(suiteId);
         if (testSuitesDTO == null) {
             return new RespModel<>(3001, "suite.deleted");
@@ -136,13 +125,13 @@ public class TestSuitesServiceImpl extends SonicServiceImpl<TestSuitesMapper, Te
                 gp.put(g.getParamsKey(), g.getParamsValue());
             }
         }
-        coverHandlerMap.get(testSuitesDTO.getCover()).handlerSuite(testSuitesDTO, gp, devicesList, valueMap, results);
+        coverHandlerMap.get(testSuitesDTO.getCover()).handlerSuite(transportServer, testSuitesDTO, gp, devicesList, valueMap, results);
         return new RespModel<>(RespEnum.HANDLE_OK, results.getId());
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public RespModel<String> forceStopSuite(int resultId, String strike) {
+    public RespModel<String> forceStopSuite(TransportServer transportServer, int resultId, String strike) {
 
         Results results = resultsService.findById(resultId);
         // 统计不在线的agent
@@ -210,7 +199,7 @@ public class TestSuitesServiceImpl extends SonicServiceImpl<TestSuitesMapper, Te
             result.put("pf", testSuitesDTO.getPlatform());
             result.put("cases", suiteDetail);
             for (Integer id : agentIds) {
-                TransportWorker.send(id, result);
+                transportServer.send(id, result);
             }
         }
         if (testSuitesDTO.getCover() == CoverType.DEVICE) {
@@ -231,7 +220,7 @@ public class TestSuitesServiceImpl extends SonicServiceImpl<TestSuitesMapper, Te
             result.put("pf", testSuitesDTO.getPlatform());
             result.put("cases", suiteDetail);
             for (Integer id : agentIds) {
-                TransportWorker.send(id, result);
+                transportServer.send(id, result);
             }
         }
         return new RespModel<>(RespEnum.HANDLE_OK);
@@ -529,8 +518,23 @@ public class TestSuitesServiceImpl extends SonicServiceImpl<TestSuitesMapper, Te
         return gp;
     }
 
+    /**
+     * 封装数据并发送执行机
+     *
+     * @param agentId
+     * @param platform
+     * @param suiteDetailList
+     */
+    private void send(TransportServer transportServer, Integer agentId, Integer platform, List<JSONObject> suiteDetailList) {
+        JSONObject result = new JSONObject();
+        result.put("msg", "suite");
+        result.put("pf", platform);
+        result.put("cases", suiteDetailList);
+        transportServer.send(agentId, result);
+    }
+
     interface CoverHandler {
-        void handlerSuite(TestSuitesDTO testSuitesDTO, JSONObject gp, List<Devices> devicesList,
+        void handlerSuite(TransportServer transportServer, TestSuitesDTO testSuitesDTO, JSONObject gp, List<Devices> devicesList,
                           Map<String, List<String>> valueMap, Results results);
 
         Integer cover();
@@ -545,7 +549,7 @@ public class TestSuitesServiceImpl extends SonicServiceImpl<TestSuitesMapper, Te
         private StepsService stepsService;
 
         @Override
-        public void handlerSuite(TestSuitesDTO testSuitesDTO, JSONObject gp,
+        public void handlerSuite(TransportServer transportServer, TestSuitesDTO testSuitesDTO, JSONObject gp,
                                  List<Devices> devicesList, Map<String, List<String>> valueMap, Results results) {
             List<JSONObject> suiteDetailList = new ArrayList<>();
             for (int i = 0; i < devicesList.size(); i++) {
@@ -556,7 +560,7 @@ public class TestSuitesServiceImpl extends SonicServiceImpl<TestSuitesMapper, Te
                     suiteDetailList.add(packageTestCase(devices, testSuitesDTO.getIsOpenPerfmon(), testSuitesDTO.getPerfmonInterval(),
                             testCases, gp, results, this.stepsService));
                 }
-                send(devices.getAgentId(), testSuitesDTO.getPlatform(), suiteDetailList);
+                send(transportServer, devices.getAgentId(), testSuitesDTO.getPlatform(), suiteDetailList);
                 suiteDetailList.clear();
             }
         }
@@ -576,7 +580,7 @@ public class TestSuitesServiceImpl extends SonicServiceImpl<TestSuitesMapper, Te
         private StepsService stepsService;
 
         @Override
-        public void handlerSuite(TestSuitesDTO testSuitesDTO, JSONObject gp,
+        public void handlerSuite(TransportServer transportServer, TestSuitesDTO testSuitesDTO, JSONObject gp,
                                  List<Devices> devicesList, Map<String, List<String>> valueMap, Results results) {
             List<JSONObject> suiteDetailList = null;
             for (Devices devices : devicesList) {
@@ -595,7 +599,7 @@ public class TestSuitesServiceImpl extends SonicServiceImpl<TestSuitesMapper, Te
                         suiteDetail.put("gp", gp);
                     }
                 }
-                send(devices.getAgentId(), testSuitesDTO.getPlatform(), suiteDetailList);
+                send(transportServer, devices.getAgentId(), testSuitesDTO.getPlatform(), suiteDetailList);
             }
         }
 
@@ -603,20 +607,5 @@ public class TestSuitesServiceImpl extends SonicServiceImpl<TestSuitesMapper, Te
         public Integer cover() {
             return CoverType.DEVICE;
         }
-    }
-
-    /**
-     * 封装数据并发送执行机
-     *
-     * @param agentId
-     * @param platform
-     * @param suiteDetailList
-     */
-    private void send(Integer agentId, Integer platform, List<JSONObject> suiteDetailList) {
-        JSONObject result = new JSONObject();
-        result.put("msg", "suite");
-        result.put("pf", platform);
-        result.put("cases", suiteDetailList);
-        TransportWorker.send(agentId, result);
     }
 }

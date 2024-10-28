@@ -19,8 +19,8 @@ package org.cloud.sonic.controller.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -28,7 +28,6 @@ import org.cloud.sonic.controller.models.base.TypeConverter;
 import org.cloud.sonic.controller.models.domain.Modules;
 import org.cloud.sonic.controller.models.dto.ModulesDTO;
 import org.cloud.sonic.controller.services.ModulesService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -36,12 +35,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Tag(name = "模块管理相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/modules")
 public class ModulesController {
 
-    @Autowired
-    private ModulesService modulesService;
+    private final ModulesService modulesService;
 
     @WebAspect
     @Operation(summary = "更新模块信息", description = "新增或更新对应的模块信息")

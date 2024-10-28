@@ -24,6 +24,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -32,21 +33,23 @@ import org.cloud.sonic.controller.models.domain.Devices;
 import org.cloud.sonic.controller.models.http.DeviceDetailChange;
 import org.cloud.sonic.controller.models.http.OccupyParams;
 import org.cloud.sonic.controller.models.http.UpdateDeviceImg;
+import org.cloud.sonic.controller.services.AgentsService;
 import org.cloud.sonic.controller.services.DevicesService;
-import org.cloud.sonic.controller.transport.TransportWorker;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cloud.sonic.controller.transport.TransportServer;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Tag(name = "设备管理相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/devices")
 public class DevicesController {
 
-    @Autowired
-    private DevicesService devicesService;
+    private final DevicesService devicesService;
+    private final TransportServer transportServer;
+    private final AgentsService agentsService;
 
     @WebAspect
     @Operation(summary = "通过REST API占用设备", description = "远程占用设备并开启相关端口")
@@ -56,7 +59,7 @@ public class DevicesController {
         if (token == null) {
             return new RespModel(RespEnum.UNAUTHORIZED);
         }
-        return devicesService.occupy(occupyParams, token);
+        return devicesService.occupy(transportServer, occupyParams, token, agentsService);
     }
 
     @WebAspect
@@ -68,7 +71,7 @@ public class DevicesController {
         if (token == null) {
             return new RespModel(RespEnum.UNAUTHORIZED);
         }
-        return devicesService.release(udId, token);
+        return devicesService.release(transportServer, udId, token);
     }
 
     @WebAspect
@@ -81,7 +84,7 @@ public class DevicesController {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("msg", "stopDebug");
             jsonObject.put("udId", udId);
-            TransportWorker.send(devices.getAgentId(), jsonObject);
+            transportServer.send(devices.getAgentId(), jsonObject);
             return new RespModel<>(RespEnum.HANDLE_OK);
         } else {
             return new RespModel<>(RespEnum.DEVICE_NOT_FOUND);

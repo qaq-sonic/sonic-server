@@ -27,27 +27,23 @@ import java.util.Date;
 @TableCharset(MySqlCharsetConstant.DEFAULT)
 @TableEngine(MySqlEngineConstant.InnoDB)
 public class RoleResources implements Serializable {
-    @TableId(value = "id", type = IdType.AUTO)
-    @IsAutoIncrement
-    private Integer id;
-
-    @TableField("role_id")
-    @Column(value = "role_id", isNull = false, comment = "描述")
-    private Integer roleId;
-
-    @TableField("res_id")
-    @Column(value = "res_id", isNull = false, comment = "描述")
-    private Integer resId;
-
     @Schema(description = "创建时间", example = "2021-08-15 11:36:00")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @TableField(fill = FieldFill.INSERT)
     @Column(value = "create_time", type = MySqlTypeConstant.DATETIME, isNull = false, comment = "创建时间")
     Date createTime;
-
     @Schema(description = "更新时间", example = "2021-08-15 11:36:00")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @TableField(fill = FieldFill.INSERT_UPDATE)
     @Column(value = "update_time", type = MySqlTypeConstant.DATETIME, comment = "更新时间")
     Date updateTime;
+    @TableId(value = "id", type = IdType.AUTO)
+    @IsAutoIncrement
+    private Integer id;
+    @TableField("role_id")
+    @Column(value = "role_id", isNull = false, comment = "描述")
+    private Integer roleId;
+    @TableField("res_id")
+    @Column(value = "res_id", isNull = false, comment = "描述")
+    private Integer resId;
 }

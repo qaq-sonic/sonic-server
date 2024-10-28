@@ -19,7 +19,10 @@ package org.cloud.sonic.controller.services.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.cloud.sonic.controller.mapper.*;
+import lombok.RequiredArgsConstructor;
+import org.cloud.sonic.controller.mapper.PublicStepsMapper;
+import org.cloud.sonic.controller.mapper.PublicStepsStepsMapper;
+import org.cloud.sonic.controller.mapper.StepsMapper;
 import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.base.TypeConverter;
 import org.cloud.sonic.controller.models.domain.PublicSteps;
@@ -32,7 +35,6 @@ import org.cloud.sonic.controller.services.ElementsService;
 import org.cloud.sonic.controller.services.PublicStepsService;
 import org.cloud.sonic.controller.services.StepsService;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -40,7 +42,6 @@ import org.springframework.util.ObjectUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -48,23 +49,15 @@ import java.util.stream.Collectors;
  * @des 公共步骤逻辑实现
  * @date 2021/8/20 17:51
  */
+@RequiredArgsConstructor
 @Service
 public class PublicStepsServiceImpl extends SonicServiceImpl<PublicStepsMapper, PublicSteps> implements PublicStepsService {
 
-    @Autowired
-    private PublicStepsMapper publicStepsMapper;
-    @Autowired
-    private ElementsMapper elementsMapper;
-    @Autowired
-    private PublicStepsStepsMapper publicStepsStepsMapper;
-    @Autowired
-    private StepsElementsMapper stepsElementsMapper;
-    @Autowired
-    private StepsMapper stepsMapper;
-    @Autowired
-    private StepsService stepsService;
-    @Autowired
-    private ElementsService elementsService;
+    private final PublicStepsMapper publicStepsMapper;
+    private final PublicStepsStepsMapper publicStepsStepsMapper;
+    private final StepsMapper stepsMapper;
+    private final StepsService stepsService;
+    private final ElementsService elementsService;
 
     @Transactional
     @Override

@@ -1,10 +1,9 @@
 package org.cloud.sonic.controller.services.impl;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-//import com.baomidou.mybatisplus.extension.toolkit.AopUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.common.config.WhiteUrl;
 import org.cloud.sonic.controller.mapper.ResourcesMapper;
@@ -25,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -38,12 +36,12 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
+@RequiredArgsConstructor
 @Service
 @Component
 public class ResourcesServiceImpl extends SonicServiceImpl<ResourcesMapper, Resources> implements ResourcesService {
 
-    @Resource
-    private RoleResourcesMapper roleResourcesMapper;
+    private final RoleResourcesMapper roleResourcesMapper;
 
     @Value("${spring.version}")
     private String version;
@@ -230,11 +228,7 @@ public class ResourcesServiceImpl extends SonicServiceImpl<ResourcesMapper, Reso
         Map<Integer, RoleResources> finalMap = map;
         commentPage.getContent().stream().forEach(a -> {
             //判断当前资源是否具有权限
-            if (finalMap != null && finalMap.containsKey(a.getId())) {
-                a.setHasAuth(true);
-            } else {
-                a.setHasAuth(false);
-            }
+            a.setHasAuth(finalMap != null && finalMap.containsKey(a.getId()));
             // 构建权限树
             ResourcesDTO parent = mapParent.get(a.getParentId());
             if (parent != null) {

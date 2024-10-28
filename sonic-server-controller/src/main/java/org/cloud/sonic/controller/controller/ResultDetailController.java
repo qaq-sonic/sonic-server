@@ -23,13 +23,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
 import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.domain.ResultDetail;
 import org.cloud.sonic.controller.services.ResultDetailService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cloud.sonic.controller.services.ResultsService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,18 +41,19 @@ import java.util.List;
  * @date 2021/8/29 16:59
  */
 @Tag(name = "测试结果详情相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/resultDetail")
 public class ResultDetailController {
 
-    @Autowired
-    private ResultDetailService resultDetailService;
+    private final ResultDetailService resultDetailService;
+    private final ResultsService resultsService;
 
     @WebAspect
     @Operation(summary = "保存测试结果", description = "保存测试结果")
     @PostMapping
     public RespModel<String> save(@RequestBody JSONObject jsonObject) {
-        resultDetailService.saveByTransport(jsonObject);
+        resultDetailService.saveByTransport(jsonObject, resultsService);
         return new RespModel<>(RespEnum.HANDLE_OK);
     }
 

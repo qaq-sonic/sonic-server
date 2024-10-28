@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -29,16 +30,15 @@ import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.domain.Scripts;
 import org.cloud.sonic.controller.models.dto.ScriptsDTO;
 import org.cloud.sonic.controller.services.ScriptsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "脚本模板管理相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/scripts")
 public class ScriptsController {
-    @Autowired
-    private ScriptsService scriptsService;
+    private final ScriptsService scriptsService;
 
     @WebAspect
     @Operation(summary = "查找脚本模板列表", description = "查找对应项目id的脚本列表")

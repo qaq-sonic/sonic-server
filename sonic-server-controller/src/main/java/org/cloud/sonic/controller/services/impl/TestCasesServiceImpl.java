@@ -22,7 +22,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import org.cloud.sonic.controller.mapper.*;
+import lombok.RequiredArgsConstructor;
+import org.cloud.sonic.controller.mapper.ModulesMapper;
+import org.cloud.sonic.controller.mapper.StepsMapper;
+import org.cloud.sonic.controller.mapper.TestCasesMapper;
+import org.cloud.sonic.controller.mapper.TestSuitesTestCasesMapper;
 import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.domain.*;
 import org.cloud.sonic.controller.models.dto.PublicStepsAndStepsIdDTO;
@@ -30,7 +34,6 @@ import org.cloud.sonic.controller.models.dto.StepsDTO;
 import org.cloud.sonic.controller.models.dto.TestCasesDTO;
 import org.cloud.sonic.controller.services.*;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -44,26 +47,17 @@ import java.util.stream.Collectors;
  * @des 测试用例逻辑实现
  * @date 2021/8/20 17:51
  */
+@RequiredArgsConstructor
 @Service
 public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, TestCases> implements TestCasesService {
-    @Autowired
-    private StepsService stepsService;
-    @Autowired
-    private StepsElementsMapper stepsElementsMapper;
-    @Autowired
-    private GlobalParamsService globalParamsService;
-    @Autowired
-    private TestSuitesTestCasesMapper testSuitesTestCasesMapper;
-    @Autowired
-    private TestSuitesService testSuitesService;
-    @Autowired
-    private TestCasesMapper testCasesMapper;
-    @Autowired
-    private StepsMapper stepsMapper;
-    @Autowired
-    private ElementsService elementsService;
-    @Autowired
-    private ModulesMapper modulesMapper;
+    private final StepsService stepsService;
+    private final GlobalParamsService globalParamsService;
+    private final TestSuitesTestCasesMapper testSuitesTestCasesMapper;
+    private final TestSuitesService testSuitesService;
+    private final TestCasesMapper testCasesMapper;
+    private final StepsMapper stepsMapper;
+    private final ElementsService elementsService;
+    private final ModulesMapper modulesMapper;
 
     @Override
     public CommentPage<TestCasesDTO> findAll(int projectId, int platform, String name, List<Integer> moduleIds,
@@ -93,7 +87,7 @@ public class TestCasesServiceImpl extends SonicServiceImpl<TestCasesMapper, Test
 
     @Transactional
     public TestCasesDTO findCaseDetail(TestCases testCases) {
-        if (testCases == null){
+        if (testCases == null) {
             return new TestCasesDTO().setId(0).setName("unknown");
         }
 

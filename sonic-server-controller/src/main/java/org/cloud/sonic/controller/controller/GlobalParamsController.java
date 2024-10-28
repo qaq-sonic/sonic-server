@@ -20,25 +20,25 @@ package org.cloud.sonic.controller.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
 import org.cloud.sonic.controller.models.domain.GlobalParams;
 import org.cloud.sonic.controller.models.dto.GlobalParamsDTO;
 import org.cloud.sonic.controller.services.GlobalParamsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Tag(name = "全局参数相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/globalParams")
 public class GlobalParamsController {
 
-    @Autowired
-    private GlobalParamsService globalParamsService;
+    private final GlobalParamsService globalParamsService;
 
     @WebAspect
     @Operation(summary = "更新全局参数", description = "新增或更新对应的全局参数")

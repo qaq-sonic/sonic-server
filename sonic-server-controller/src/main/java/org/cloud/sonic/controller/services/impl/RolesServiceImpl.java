@@ -19,7 +19,7 @@ package org.cloud.sonic.controller.services.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import jakarta.annotation.Resource;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.controller.mapper.RoleResourcesMapper;
 import org.cloud.sonic.controller.mapper.RolesMapper;
 import org.cloud.sonic.controller.models.base.CommentPage;
@@ -38,11 +38,11 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@RequiredArgsConstructor
 @Service
 public class RolesServiceImpl extends SonicServiceImpl<RolesMapper, Roles> implements RolesServices {
 
-    @Resource
-    private RoleResourcesMapper roleResourcesMapper;
+    private final RoleResourcesMapper roleResourcesMapper;
 
     @Override
     @Transactional

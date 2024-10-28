@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
@@ -14,17 +15,16 @@ import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.domain.Roles;
 import org.cloud.sonic.controller.models.dto.RolesDTO;
 import org.cloud.sonic.controller.services.RolesServices;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @Tag(name = "角色相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/roles")
 public class RolesController {
 
-    @Autowired
-    private RolesServices rolesServices;
+    private final RolesServices rolesServices;
 
     @WebAspect
     @Operation(summary = "查询所有角色信息", description = "查询所有角色信息")

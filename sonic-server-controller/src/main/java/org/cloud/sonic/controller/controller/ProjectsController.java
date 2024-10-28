@@ -20,6 +20,7 @@ package org.cloud.sonic.controller.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.config.WhiteUrl;
 import org.cloud.sonic.common.exception.SonicException;
@@ -29,7 +30,6 @@ import org.cloud.sonic.controller.models.base.TypeConverter;
 import org.cloud.sonic.controller.models.domain.Projects;
 import org.cloud.sonic.controller.models.dto.ProjectsDTO;
 import org.cloud.sonic.controller.services.ProjectsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -42,12 +42,12 @@ import java.util.stream.Collectors;
  * @date 2021/9/9 22:46
  */
 @Tag(name = "项目管理相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/projects")
 public class ProjectsController {
 
-    @Autowired
-    private ProjectsService projectsService;
+    private final ProjectsService projectsService;
 
     @WebAspect
     @Operation(summary = "更新项目信息", description = "新增或更新项目信息")

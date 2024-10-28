@@ -24,21 +24,30 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
 import org.cloud.sonic.controller.models.base.CommentPage;
+import org.cloud.sonic.controller.models.domain.Projects;
 import org.cloud.sonic.controller.models.domain.Results;
+import org.cloud.sonic.controller.services.ProjectsService;
 import org.cloud.sonic.controller.services.ResultsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cloud.sonic.controller.services.TestCasesService;
+import org.cloud.sonic.controller.services.TestSuitesService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "测试结果相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/results")
 public class ResultsController {
-    @Autowired
-    private ResultsService resultsService;
+    private final ResultsService resultsService;
+    private final ProjectsService projectsService;
+    private final TestSuitesService testSuitesService;
+    private final TestCasesService testCasesService;
 
     @WebAspect
     @Operation(summary = "查询测试结果列表", description = "查找对应项目id下的测试结果列表")
@@ -99,7 +108,7 @@ public class ResultsController {
     @Parameter(name = "id", description = "测试结果id")
     @GetMapping("/findCaseStatus")
     public RespModel<JSONArray> findCaseStatus(@RequestParam(name = "id") int id) {
-        JSONArray result = resultsService.findCaseStatus(id);
+        JSONArray result = resultsService.findCaseStatus(id, testSuitesService, testCasesService);
         if (result == null) {
             return new RespModel<>(RespEnum.ID_NOT_FOUND);
         } else {
@@ -125,7 +134,8 @@ public class ResultsController {
     @Operation(summary = "发送日报", description = "发送所有项目日报")
     @GetMapping("/sendDayReport")
     public RespModel<String> sendDayReport() {
-        resultsService.sendDayReport();
+        List<Projects> projectsList = projectsService.findAll();
+        resultsService.sendDayReport(projectsList);
         return new RespModel<>(RespEnum.HANDLE_OK);
     }
 
@@ -133,7 +143,8 @@ public class ResultsController {
     @Operation(summary = "发送周报", description = "发送所有项目周报")
     @GetMapping("/sendWeekReport")
     public RespModel<String> sendWeekReport() {
-        resultsService.sendWeekReport();
+        List<Projects> projectsList = projectsService.findAll();
+        resultsService.sendWeekReport(projectsList);
         return new RespModel<>(RespEnum.HANDLE_OK);
     }
 }

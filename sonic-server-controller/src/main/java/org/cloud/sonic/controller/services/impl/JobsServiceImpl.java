@@ -19,6 +19,7 @@ package org.cloud.sonic.controller.services.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.exception.SonicException;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -30,7 +31,6 @@ import org.cloud.sonic.controller.services.JobsService;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
 import org.quartz.CronTrigger;
 import org.quartz.SchedulerException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,14 +41,12 @@ import java.util.List;
  * @des 定时任务逻辑层实现
  * @date 2021/8/22 11:22
  */
+@RequiredArgsConstructor
 @Service
 public class JobsServiceImpl extends SonicServiceImpl<JobsMapper, Jobs> implements JobsService {
 
-    @Autowired
-    private QuartzHandler quartzHandler;
-    @Autowired
-    private JobsMapper jobsMapper;
     private static final String TEST_JOB = "testJob";
+    private final QuartzHandler quartzHandler;
 
     @Override
     @Transactional(rollbackFor = Exception.class)

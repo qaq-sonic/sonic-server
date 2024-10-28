@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -30,19 +31,22 @@ import org.cloud.sonic.controller.models.domain.Elements;
 import org.cloud.sonic.controller.models.dto.ElementsDTO;
 import org.cloud.sonic.controller.models.dto.StepsDTO;
 import org.cloud.sonic.controller.services.ElementsService;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cloud.sonic.controller.services.StepsService;
+import org.cloud.sonic.controller.services.TestCasesService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Tag(name = "控件元素管理相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/elements")
 public class ElementsController {
 
-    @Autowired
-    private ElementsService elementsService;
+    private final ElementsService elementsService;
+    private final StepsService stepsService;
+    private final TestCasesService testCasesService;
 
     @WebAspect
     @Operation(summary = "查找控件元素列表1", description = "查找对应项目id的控件元素列表")
@@ -98,7 +102,7 @@ public class ElementsController {
     @Parameter(name = "id", description = "元素id")
     @GetMapping("/deleteCheck")
     public RespModel<List<StepsDTO>> deleteCheck(@RequestParam(name = "id") int id) {
-        return new RespModel<>(RespEnum.SEARCH_OK, elementsService.findAllStepsByElementsId(id));
+        return new RespModel<>(RespEnum.SEARCH_OK, elementsService.findAllStepsByElementsId(id, stepsService, testCasesService));
     }
 
     @WebAspect

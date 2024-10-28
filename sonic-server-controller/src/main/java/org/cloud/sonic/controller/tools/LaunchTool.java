@@ -17,19 +17,21 @@
  */
 package org.cloud.sonic.controller.tools;
 
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.controller.quartz.QuartzHandler;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cloud.sonic.controller.services.JobsService;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+@RequiredArgsConstructor
 @Component
 public class LaunchTool implements ApplicationRunner {
-    @Autowired
-    private QuartzHandler quartzHandler;
+    private final QuartzHandler quartzHandler;
+    private final JobsService jobsService;
 
     @Override
     public void run(ApplicationArguments args) {
-        quartzHandler.createSysTrigger();
+        quartzHandler.createSysTrigger(jobsService);
     }
 }

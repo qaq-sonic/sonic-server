@@ -22,7 +22,6 @@ import org.cloud.sonic.controller.mapper.GlobalParamsMapper;
 import org.cloud.sonic.controller.models.domain.GlobalParams;
 import org.cloud.sonic.controller.services.GlobalParamsService;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,9 +33,6 @@ import java.util.List;
  */
 @Service
 public class GlobalParamsServiceImpl extends SonicServiceImpl<GlobalParamsMapper, GlobalParams> implements GlobalParamsService {
-
-    @Autowired
-    private GlobalParamsMapper globalParamsMapper;
 
     @Override
     public List<GlobalParams> findAll(int projectId) {

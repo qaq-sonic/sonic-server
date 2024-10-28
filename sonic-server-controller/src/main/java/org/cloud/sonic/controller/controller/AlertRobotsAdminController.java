@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.config.WhiteUrl;
 import org.cloud.sonic.common.http.RespEnum;
@@ -30,19 +31,18 @@ import org.cloud.sonic.controller.models.base.CommentPage;
 import org.cloud.sonic.controller.models.domain.AlertRobots;
 import org.cloud.sonic.controller.models.dto.AlertRobotsDTO;
 import org.cloud.sonic.controller.services.AlertRobotsService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @Tag(name = "告警通知机器人相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/alertRobotsAdmin")
 public class AlertRobotsAdminController {
 
-    @Autowired
-    private AlertRobotsService alertRobotsService;
+    private final AlertRobotsService alertRobotsService;
 
     @WebAspect
     @Operation(summary = "更新机器人参数", description = "新增或更新对应的机器人")

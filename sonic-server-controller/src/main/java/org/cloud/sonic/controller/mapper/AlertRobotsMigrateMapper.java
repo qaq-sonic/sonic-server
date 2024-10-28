@@ -38,6 +38,7 @@ public interface AlertRobotsMigrateMapper {
             WHERE robot_type > 0 and robot_token != ''
             """)
     int migrateProjectRobot();
+
     @Update("update projects set robot_type = -robot_type where robot_type > 0")
     void clearProjectRobot();
 

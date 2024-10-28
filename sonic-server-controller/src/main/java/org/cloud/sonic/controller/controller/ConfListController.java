@@ -20,6 +20,7 @@ package org.cloud.sonic.controller.controller;
 import com.alibaba.fastjson.JSONObject;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -27,8 +28,7 @@ import org.cloud.sonic.controller.models.domain.Agents;
 import org.cloud.sonic.controller.models.interfaces.ConfType;
 import org.cloud.sonic.controller.services.AgentsService;
 import org.cloud.sonic.controller.services.ConfListService;
-import org.cloud.sonic.controller.transport.TransportWorker;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cloud.sonic.controller.transport.TransportServer;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,13 +37,13 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @Tag(name = "配置项相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/confList")
 public class ConfListController {
-    @Autowired
-    private ConfListService confListService;
-    @Autowired
-    private AgentsService agentsService;
+    private final ConfListService confListService;
+    private final AgentsService agentsService;
+    private final TransportServer transportServer;
 
     @WebAspect
     @Operation(summary = "获取远控超时时间", description = "获取远控超时时间")
@@ -63,7 +63,7 @@ public class ConfListController {
             JSONObject result = new JSONObject();
             result.put("msg", "settings");
             result.put("remoteTimeout", timeout);
-            TransportWorker.send(agents.getId(), result);
+            transportServer.send(agents.getId(), result);
         }
         return new RespModel<>(RespEnum.HANDLE_OK);
     }

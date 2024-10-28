@@ -14,7 +14,7 @@ import java.util.List;
  */
 public interface ResultDetailService extends IService<ResultDetail> {
 
-    void saveByTransport(JSONObject jsonObject);
+    void saveByTransport(JSONObject jsonObject, ResultsService resultsService);
 
     Page<ResultDetail> findAll(int resultId, int caseId, String type, int deviceId, Page<ResultDetail> pageable);
 

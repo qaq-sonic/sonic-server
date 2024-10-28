@@ -22,7 +22,7 @@ import java.io.Serializable;
  * @author JayWenStar
  * @since 2021-12-17
  */
-@Schema(name ="GlobalParams对象", description = "")
+@Schema(name = "GlobalParams对象", description = "")
 @Data
 @Accessors(chain = true)
 @Builder

@@ -60,26 +60,20 @@ public class StepsDTO implements Serializable, TypeConverter<StepsDTO, Steps> {
     @Positive
     @Schema(description = "异常处理类型", required = true, example = "1")
     int error;
-
+    @Schema(description = "包含元素列表")
+    List<ElementsDTO> elements;
+    @JsonIgnore
+    @JSONField(serialize = false)
+    List<PublicStepsDTO> publicSteps;
+    @Schema(description = "所属测试用例")
+    TestCasesDTO testCasesDTO;
+    @Schema(description = "子步骤")
+    List<StepsDTO> childSteps;
     /**
      * @see ConditionEnum
      */
     @Schema(description = "步骤条件类型，0：非条件  1：if  2：else if  3：else  4：while", example = "0")
     private Integer conditionType;
-
     @Schema(description = "是否禁用", example = "0")
     private Integer disabled;
-
-    @Schema(description = "包含元素列表")
-    List<ElementsDTO> elements;
-
-    @JsonIgnore
-    @JSONField(serialize = false)
-    List<PublicStepsDTO> publicSteps;
-
-    @Schema(description = "所属测试用例")
-    TestCasesDTO testCasesDTO;
-
-    @Schema(description = "子步骤")
-    List<StepsDTO> childSteps;
 }

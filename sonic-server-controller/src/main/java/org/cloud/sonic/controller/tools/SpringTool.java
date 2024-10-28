@@ -9,15 +9,15 @@ import org.springframework.stereotype.Component;
 public final class SpringTool implements ApplicationContextAware {
     private static ApplicationContext applicationContext = null;
 
+    public static ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         if (SpringTool.applicationContext == null) {
             SpringTool.applicationContext = applicationContext;
         }
-    }
-
-    public static ApplicationContext getApplicationContext() {
-        return applicationContext;
     }
 
     public static Object getBean(String name) {

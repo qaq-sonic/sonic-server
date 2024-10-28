@@ -21,6 +21,8 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.controller.mapper.ResultsMapper;
 import org.cloud.sonic.controller.models.domain.Projects;
 import org.cloud.sonic.controller.models.domain.ResultDetail;
@@ -31,9 +33,6 @@ import org.cloud.sonic.controller.models.interfaces.ResultDetailStatus;
 import org.cloud.sonic.controller.models.interfaces.ResultStatus;
 import org.cloud.sonic.controller.services.*;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,24 +46,39 @@ import java.util.concurrent.Executors;
  * @des 测试结果逻辑实现
  * @date 2021/8/21 16:09
  */
+@Slf4j
+@RequiredArgsConstructor
 @Service
 public class ResultsServiceImpl extends SonicServiceImpl<ResultsMapper, Results> implements ResultsService {
 
-    private final Logger logger = LoggerFactory.getLogger(ResultsServiceImpl.class);
+    private final ResultsMapper resultsMapper;
+    private final ResultDetailService resultDetailService;
+    private final AlertRobotsService alertRobotsService;
     ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
 
-    @Autowired
-    private ResultsMapper resultsMapper;
-    @Autowired
-    private ResultDetailService resultDetailService;
-    @Autowired
-    private ProjectsService projectsService;
-    @Autowired
-    private AlertRobotsService alertRobotsService;
-    @Autowired
-    private TestSuitesService testSuitesService;
-    @Autowired
-    private TestCasesService testCasesService;
+    public static List<String> getBetweenDate(String begin, String end) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+        List<String> betweenList = new ArrayList<String>();
+
+        try {
+            Calendar startDay = Calendar.getInstance();
+            startDay.setTime(format.parse(begin));
+            startDay.add(Calendar.DATE, -1);
+
+            while (true) {
+                startDay.add(Calendar.DATE, 1);
+                Date newDate = startDay.getTime();
+                String newend = format.format(newDate);
+                betweenList.add(newend);
+                if (end.equals(newend)) {
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return betweenList;
+    }
 
     @Override
     public Page<Results> findByProjectId(int projectId, Page<Results> pageable) {
@@ -100,7 +114,7 @@ public class ResultsServiceImpl extends SonicServiceImpl<ResultsMapper, Results>
                 .list();
         cachedThreadPool.execute(() -> {
             for (Results results : resultsList) {
-                logger.info("clear report id: " + results.getId());
+                log.info("clear report id: " + results.getId());
                 delete(results.getId());
                 try {
                     Thread.sleep(500);
@@ -123,7 +137,7 @@ public class ResultsServiceImpl extends SonicServiceImpl<ResultsMapper, Results>
 
     @Override
     @Transactional
-    public JSONArray findCaseStatus(int id) {
+    public JSONArray findCaseStatus(int id, TestSuitesService testSuitesService, TestCasesService testCasesService) {
         Results results = findById(id);
         SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (results != null) {
@@ -218,10 +232,9 @@ public class ResultsServiceImpl extends SonicServiceImpl<ResultsMapper, Results>
 
     @Transactional
     @Override
-    public void sendDayReport() {
+    public void sendDayReport(List<Projects> projectsList) {
         long timeMillis = Calendar.getInstance().getTimeInMillis();
         SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        List<Projects> projectsList = projectsService.findAll();
         for (Projects projects : projectsList) {
             Date yesterday = new Date(timeMillis - 86400000);
             Date today = new Date(timeMillis);
@@ -248,10 +261,9 @@ public class ResultsServiceImpl extends SonicServiceImpl<ResultsMapper, Results>
 
     @Transactional
     @Override
-    public void sendWeekReport() {
+    public void sendWeekReport(List<Projects> projectsList) {
         long timeMillis = Calendar.getInstance().getTimeInMillis();
         SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        List<Projects> projectsList = projectsService.findAll();
         for (Projects projects : projectsList) {
             Date lastWeek = new Date(timeMillis - 86400000 * 7L);
             Date today = new Date(timeMillis);
@@ -275,30 +287,6 @@ public class ResultsServiceImpl extends SonicServiceImpl<ResultsMapper, Results>
             }
             alertRobotsService.sendProjectReportMessage(projects.getId(), projects.getProjectName(), lastWeek, today, true, suc, warn, fail);
         }
-    }
-
-    public static List<String> getBetweenDate(String begin, String end) {
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-        List<String> betweenList = new ArrayList<String>();
-
-        try {
-            Calendar startDay = Calendar.getInstance();
-            startDay.setTime(format.parse(begin));
-            startDay.add(Calendar.DATE, -1);
-
-            while (true) {
-                startDay.add(Calendar.DATE, 1);
-                Date newDate = startDay.getTime();
-                String newend = format.format(newDate);
-                betweenList.add(newend);
-                if (end.equals(newend)) {
-                    break;
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return betweenList;
     }
 
     @Transactional(rollbackFor = Exception.class)

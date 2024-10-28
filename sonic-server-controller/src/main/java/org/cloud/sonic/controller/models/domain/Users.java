@@ -23,7 +23,7 @@ import java.io.Serializable;
  * @author JayWenStar
  * @since 2021-12-17
  */
-@Schema(name ="Users对象", description = "")
+@Schema(name = "Users对象", description = "")
 @Data
 @Accessors(chain = true)
 @Builder
@@ -35,24 +35,20 @@ import java.io.Serializable;
 @TableEngine(MySqlEngineConstant.InnoDB)
 public class Users implements Serializable, TypeConverter<Users, UsersDTO> {
 
+    @TableField
+    @Column(value = "source", isNull = false, defaultValue = UserLoginType.LOCAL, comment = "用户来源")
+    String source = UserLoginType.LOCAL;
     @TableId(value = "id", type = IdType.AUTO)
     @IsAutoIncrement
     private Integer id;
-
     @TableField
     @Column(isNull = false, comment = "密码")
     private String password;
-
     @TableField
     @Column(comment = "角色")
     private Integer userRole;
-
     @TableField
     @Column(value = "user_name", isNull = false, comment = "用户名")
     @Unique(value = "UNI_USER_NAME", columns = "user_name")
     private String userName;
-
-    @TableField
-    @Column(value = "source", isNull = false, defaultValue = UserLoginType.LOCAL, comment = "用户来源")
-    String source = UserLoginType.LOCAL;
 }

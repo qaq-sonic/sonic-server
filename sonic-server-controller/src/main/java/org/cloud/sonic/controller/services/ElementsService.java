@@ -14,7 +14,7 @@ import java.util.List;
 public interface ElementsService extends IService<Elements> {
     CommentPage<ElementsDTO> findAll(int projectId, String type, List<String> eleTypes, String name, String value, List<Integer> moduleIds, Page<Elements> pageable);
 
-    List<StepsDTO> findAllStepsByElementsId(int elementsId);
+    List<StepsDTO> findAllStepsByElementsId(int elementsId, StepsService stepsService, TestCasesService testCasesService);
 
     RespModel<String> delete(int id);
 

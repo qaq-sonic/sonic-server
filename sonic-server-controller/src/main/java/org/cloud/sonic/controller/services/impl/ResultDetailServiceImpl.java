@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.controller.mapper.ResultDetailMapper;
 import org.cloud.sonic.controller.models.domain.Devices;
 import org.cloud.sonic.controller.models.domain.ResultDetail;
@@ -29,7 +30,6 @@ import org.cloud.sonic.controller.services.DevicesService;
 import org.cloud.sonic.controller.services.ResultDetailService;
 import org.cloud.sonic.controller.services.ResultsService;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,18 +39,15 @@ import java.util.List;
  * @des 测试结果详情逻辑实现
  * @date 2021/8/21 20:55
  */
+@RequiredArgsConstructor
 @Service
 public class ResultDetailServiceImpl extends SonicServiceImpl<ResultDetailMapper, ResultDetail> implements ResultDetailService {
 
-    @Autowired
-    private ResultDetailMapper resultDetailMapper;
-    @Autowired
-    private DevicesService devicesService;
-    @Autowired
-    private ResultsService resultsService;
+    private final ResultDetailMapper resultDetailMapper;
+    private final DevicesService devicesService;
 
     @Override
-    public void saveByTransport(JSONObject jsonMsg) {
+    public void saveByTransport(JSONObject jsonMsg, ResultsService resultsService) {
         Devices resultDevice = devicesService.findByAgentIdAndUdId(jsonMsg.getInteger("agentId")
                 , jsonMsg.getString("udId"));
         ResultDetail resultInfo = new ResultDetail();

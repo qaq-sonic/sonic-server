@@ -18,7 +18,7 @@ import org.cloud.sonic.controller.models.dto.JobsDTO;
 
 import java.io.Serializable;
 
-@Schema(name ="Jobs对象", description = "")
+@Schema(name = "Jobs对象", description = "")
 @Data
 @Accessors(chain = true)
 @Builder

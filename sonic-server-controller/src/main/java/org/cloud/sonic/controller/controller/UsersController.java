@@ -23,6 +23,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.config.WebAspect;
 import org.cloud.sonic.common.config.WhiteUrl;
 import org.cloud.sonic.common.exception.SonicException;
@@ -37,7 +38,6 @@ import org.cloud.sonic.controller.models.http.ChangePwd;
 import org.cloud.sonic.controller.models.http.UserInfo;
 import org.cloud.sonic.controller.services.RolesServices;
 import org.cloud.sonic.controller.services.UsersService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,17 +49,13 @@ import java.util.Objects;
  * @date 2021/10/13 19:05
  */
 @Tag(name = "用户体系相关")
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/users")
 public class UsersController {
-    @Autowired
-    private UsersService usersService;
-
-    @Autowired
-    private RolesServices rolesServices;
-
-    @Autowired
-    private JWTTokenTool jwtTokenTool;
+    private final UsersService usersService;
+    private final RolesServices rolesServices;
+    private final JWTTokenTool jwtTokenTool;
 
     @WebAspect
     @WhiteUrl

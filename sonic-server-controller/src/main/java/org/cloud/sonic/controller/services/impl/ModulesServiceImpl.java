@@ -18,27 +18,25 @@
 package org.cloud.sonic.controller.services.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.controller.mapper.ModulesMapper;
 import org.cloud.sonic.controller.models.domain.Modules;
 import org.cloud.sonic.controller.services.ElementsService;
 import org.cloud.sonic.controller.services.ModulesService;
 import org.cloud.sonic.controller.services.TestCasesService;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Service
 public class ModulesServiceImpl extends SonicServiceImpl<ModulesMapper, Modules> implements ModulesService {
 
-    @Autowired
-    private ModulesMapper modulesMapper;
-    @Autowired
-    private ElementsService elementsService;
-    @Autowired
-    private TestCasesService testCasesService;
+    private final ModulesMapper modulesMapper;
+    private final ElementsService elementsService;
+    private final TestCasesService testCasesService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)

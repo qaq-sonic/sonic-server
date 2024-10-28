@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import org.cloud.sonic.common.exception.SonicException;
 import org.cloud.sonic.controller.mapper.*;
 import org.cloud.sonic.controller.models.base.CommentPage;
@@ -35,13 +36,15 @@ import org.cloud.sonic.controller.models.http.StepSort;
 import org.cloud.sonic.controller.services.ElementsService;
 import org.cloud.sonic.controller.services.StepsService;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -49,23 +52,16 @@ import java.util.stream.Collectors;
  * @des 测试步骤实现
  * @date 2021/8/20 17:51
  */
+@RequiredArgsConstructor
 @Service
 public class StepsServiceImpl extends SonicServiceImpl<StepsMapper, Steps> implements StepsService {
 
-    @Autowired
-    private StepsMapper stepsMapper;
-    @Autowired
-    private ElementsMapper elementsMapper;
-    @Autowired
-    private PublicStepsMapper publicStepsMapper;
-    @Autowired
-    private PublicStepsStepsMapper publicStepsStepsMapper;
-    @Autowired
-    private StepsElementsMapper stepsElementsMapper;
-    @Autowired
-    private StepsService stepsService;
-    @Autowired
-    private ElementsService elementsService;
+    private final StepsMapper stepsMapper;
+    private final ElementsMapper elementsMapper;
+    private final PublicStepsMapper publicStepsMapper;
+    private final PublicStepsStepsMapper publicStepsStepsMapper;
+    private final StepsElementsMapper stepsElementsMapper;
+    private final ElementsService elementsService;
 
     @Transactional
     @Override
@@ -282,7 +278,8 @@ public class StepsServiceImpl extends SonicServiceImpl<StepsMapper, Steps> imple
     }
 
     /**
-     *  拖拽步骤顺序，步骤所在分组发生变化时，仅对新分组以及移动步骤的sort进行重新排序
+     * 拖拽步骤顺序，步骤所在分组发生变化时，仅对新分组以及移动步骤的sort进行重新排序
+     *
      * @param stepSort
      * @return
      */
@@ -291,34 +288,34 @@ public class StepsServiceImpl extends SonicServiceImpl<StepsMapper, Steps> imple
         List<Steps> stepsList = lambdaQuery().eq(Steps::getCaseId, stepSort.getCaseId()).eq(Steps::getParentId, stepSort.getNewParentId()).list();
         // 被移动的步骤实例
         Steps movedStep = lambdaQuery().eq(Steps::getId, stepSort.getStepsId()).eq(Steps::getCaseId, stepSort.getCaseId()).one();
-        if(movedStep == null){
+        if (movedStep == null) {
             throw new SonicException("case中未能获取到该id的数据: %s", stepSort.getStepsId());
         }
         movedStep.setParentId(stepSort.getNewParentId()); // 更新父步骤id
         stepsList.add(movedStep); // 添加到组内列表
-        if (stepsList.size() == 1){
+        if (stepsList.size() == 1) {
             // 原本没有子步骤，直接更改父id就好了，没必要重新排序
-            stepSort.setEndId(movedStep.getSort()) ;
+            stepSort.setEndId(movedStep.getSort());
             stepSort.setStartId(movedStep.getSort());
             stepSort.setDirection("down");
             return stepsList;
-        }else {
+        } else {
             // 将所有子步骤包含新加入的步骤重新排序，这样就相当于在同一个分组内拖拽排序
             List<Steps> groupStepList = stepsList.stream().sorted(Comparator.comparingInt(Steps::getSort)).collect(Collectors.toList());
-            if (groupStepList.get(stepSort.getNewIndex()).getSort() >= movedStep.getSort()){
+            if (groupStepList.get(stepSort.getNewIndex()).getSort() >= movedStep.getSort()) {
                 stepSort.setDirection("down");
                 stepSort.setStartId(groupStepList.get(stepSort.getNewIndex()).getSort());
                 stepSort.setEndId(movedStep.getSort());
-            }else {
+            } else {
                 stepSort.setDirection("up");
                 stepSort.setStartId(movedStep.getSort());
                 stepSort.setEndId(groupStepList.get(stepSort.getNewIndex()).getSort());
             }
             // 取出需要重新排序的步骤
             groupStepList = groupStepList.stream().filter(
-                        steps -> steps.getSort() >= stepSort.getEndId()
-                                && steps.getSort() <= stepSort.getStartId())
-                        .collect(Collectors.toList());
+                            steps -> steps.getSort() >= stepSort.getEndId()
+                                    && steps.getSort() <= stepSort.getStartId())
+                    .collect(Collectors.toList());
             return groupStepList;
         }
     }
@@ -397,7 +394,7 @@ public class StepsServiceImpl extends SonicServiceImpl<StepsMapper, Steps> imple
     public Boolean copyStepsIdByCase(Integer stepId, boolean toLast) {
         Steps steps = stepsMapper.selectById(stepId);
         Integer originSortId = steps.getSort();
-        StepsDTO stepsCopyDTO = stepsService.handleStep(steps.convertTo(), false);
+        StepsDTO stepsCopyDTO = this.handleStep(steps.convertTo(), false);
 
         save(steps.setId(null).setSort(stepsMapper.findMaxSort() + 1));
         //关联ele
@@ -406,7 +403,7 @@ public class StepsServiceImpl extends SonicServiceImpl<StepsMapper, Steps> imple
         }
         //插入子步骤
         if (stepsCopyDTO.getChildSteps() != null) {
-            List<StepsDTO> needAllCopySteps = stepsService.getChildSteps(stepsCopyDTO.getChildSteps());
+            List<StepsDTO> needAllCopySteps = this.getChildSteps(stepsCopyDTO.getChildSteps());
 
             List<PublicStepsAndStepsIdDTO> oldStepDto = stepAndIndex(needAllCopySteps);
             //统计需要和公共步骤关联的步骤，

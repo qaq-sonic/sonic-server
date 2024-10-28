@@ -22,6 +22,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.query.LambdaQueryChainWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.cloud.sonic.common.http.RespEnum;
 import org.cloud.sonic.common.http.RespModel;
@@ -40,8 +41,7 @@ import org.cloud.sonic.controller.services.AgentsService;
 import org.cloud.sonic.controller.services.DevicesService;
 import org.cloud.sonic.controller.services.UsersService;
 import org.cloud.sonic.controller.services.impl.base.SonicServiceImpl;
-import org.cloud.sonic.controller.transport.TransportWorker;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.cloud.sonic.controller.transport.TransportServer;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
@@ -61,21 +61,17 @@ import static org.cloud.sonic.common.http.RespEnum.DELETE_OK;
  * @des 设备逻辑层实现
  * @date 2021/8/16 22:51
  */
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class DevicesServiceImpl extends SonicServiceImpl<DevicesMapper, Devices> implements DevicesService {
 
-    @Autowired
-    private DevicesMapper devicesMapper;
-    @Autowired
-    private UsersService usersService;
-    @Autowired
-    private TestSuitesDevicesMapper testSuitesDevicesMapper;
-    @Autowired
-    private AgentsService agentsService;
+    private final DevicesMapper devicesMapper;
+    private final UsersService usersService;
+    private final TestSuitesDevicesMapper testSuitesDevicesMapper;
 
     @Override
-    public RespModel occupy(OccupyParams occupyParams, String token) {
+    public RespModel occupy(TransportServer transportServer, OccupyParams occupyParams, String token, AgentsService agentsService) {
         Devices devices = findByUdId(occupyParams.getUdId());
         if (devices != null) {
             if (devices.getStatus().equals(DeviceStatus.ONLINE)) {
@@ -85,7 +81,7 @@ public class DevicesServiceImpl extends SonicServiceImpl<DevicesMapper, Devices>
                     jsonObject.put("msg", "occupy");
                     jsonObject.put("token", token);
                     jsonObject.put("platform", devices.getPlatform());
-                    TransportWorker.send(agents.getId(), jsonObject);
+                    transportServer.send(agents.getId(), jsonObject);
                     JSONObject result = new JSONObject();
                     switch (devices.getPlatform()) {
                         case PlatformType.ANDROID -> {
@@ -121,7 +117,7 @@ public class DevicesServiceImpl extends SonicServiceImpl<DevicesMapper, Devices>
     }
 
     @Override
-    public RespModel release(String udId, String token) {
+    public RespModel release(TransportServer transportServer, String udId, String token) {
         Users users = usersService.getUserInfo(token);
         Devices devices = findByUdId(udId);
         if (devices != null) {
@@ -132,7 +128,7 @@ public class DevicesServiceImpl extends SonicServiceImpl<DevicesMapper, Devices>
             jsonObject.put("msg", "release");
             jsonObject.put("udId", udId);
             jsonObject.put("platform", devices.getPlatform());
-            TransportWorker.send(devices.getAgentId(), jsonObject);
+            transportServer.send(devices.getAgentId(), jsonObject);
             return new RespModel<>(RespEnum.HANDLE_OK);
         } else {
             return new RespModel<>(RespEnum.DEVICE_NOT_FOUND);
@@ -236,9 +232,9 @@ public class DevicesServiceImpl extends SonicServiceImpl<DevicesMapper, Devices>
         }
 
         if (StringUtils.hasText(deviceInfo)) {
-        	chainWrapper.and(q -> {
-        		q.like(Devices::getUdId, deviceInfo).or().like(Devices::getModel, deviceInfo).or().like(Devices::getNickName, deviceInfo).or().like(Devices::getChiName, deviceInfo);
-        	});
+            chainWrapper.and(q -> {
+                q.like(Devices::getUdId, deviceInfo).or().like(Devices::getModel, deviceInfo).or().like(Devices::getNickName, deviceInfo).or().like(Devices::getChiName, deviceInfo);
+            });
         }
 
         chainWrapper.last("order by case\n" +

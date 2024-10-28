@@ -25,7 +25,7 @@ import java.util.Date;
  * @author JayWenStar
  * @since 2021-12-17
  */
-@Schema(name ="ResultDetail对象", description = "")
+@Schema(name = "ResultDetail对象", description = "")
 @Data
 @Accessors(chain = true)
 @Builder
